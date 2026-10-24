@@ -120,7 +120,7 @@ There's no app you can plug into for an Indonesian visa. So here's how he gets a
 
 ## 🎬 Try the demo (about 15 minutes)
 
-The demo runs the whole trip in **one click** and sends everything to **you**: the group chat is your Telegram, "Ketut" and the scooter guy text your mobile, and the QR codes land in your inbox. The bits that would spend real money (booking flights, paying for visas) are simulated, and each one says so.
+The demo runs the whole trip in **one click** and sends everything to **you**: the group chat, Ketut's WhatsApps and the scooter guy's all land in your Telegram, and the QR codes land in your inbox. **It costs nothing to run.** The bits that would spend real money (booking flights, paying for visas) are simulated, and each one says so.
 
 **What's real in the demo:** the live Surfline forecast, today's exchange rate, the lock-in button, Claude reading your passport photo and checking every digit, Claude logging every scooter scratch, Ketut's sign, the QR email and the 6am surf call.
 
@@ -128,10 +128,9 @@ The demo runs the whole trip in **one click** and sends everything to **you**: t
 2. **Import the demo** (step 3 at the top).
 3. **Connect your accounts.** Any node with a red warning needs one. Click it → **Credential** → **Create new**:
    - **Telegram**: your bot token
-   - **Anthropic** (Claude): an API key from [console.anthropic.com](https://console.anthropic.com/). A run costs a few cents.
+   - **Anthropic** (Claude): an API key from [console.anthropic.com](https://console.anthropic.com/). Only used if you set `ZERO_SPEND: false` so Claude reads your real passport and scooter photos (about 2c a photo).
    - **Gmail**: sign in with Google
-   - **Twilio** (texts to "Ketut"): a Twilio account and number. Don't want SMS? Delete those 4 nodes and reconnect the lines.
-4. **Open ⚙️ Kook settings** (third node) and put in your chat id, mobile, email and Twilio number.
+4. **Open ⚙️ Kook settings** (third node) and put in your Telegram chat id and email.
 5. Click **Execute workflow**. Tap **🔒 Lock in** in Telegram, snap your passport (or press Submit with nothing to use a sample one), and watch your phone.
 
 > 🌊 **Flat when you try it?** The demo knows. If the real forecast doesn't hit 6ft for 3 days, it borrows a pumping week so you still see the whole thing. Set `FORCE_SWELL: false` to only ever use the real forecast.
@@ -185,7 +184,7 @@ The full build is the same chain with every simulation swapped for the real serv
 ## ❓ Questions people ask
 
 <details><summary><b>Do I need to know how to code?</b></summary><br>No. You import a file and fill in a settings box. The code is already written.</details>
-<details><summary><b>What does it cost?</b></summary><br>The workflow is free. n8n Cloud has a free trial, or you can run n8n yourself for free. The demo costs a few cents of Claude per run, plus a few cents if you send texts. On a real trip the visa and tax cost the same as doing it yourself (IDR 650,000, about A$51 each), plus a few dollars of browser-agent time.</details>
+<details><summary><b>What does it cost?</b></summary><br>The workflow is free. n8n Cloud has a free trial, or you can run n8n yourself for free. The demo costs nothing to run. Switch on the real passport read and it's about 2c a photo. On a real trip the visa and tax cost the same as doing it yourself (IDR 650,000, about A$51 each), plus a few dollars of browser-agent time.</details>
 <details><summary><b>Is it safe to give it my passport?</b></summary><br>The passport photo goes to Claude to be read, and the details are used for your flight and visa only. They're deleted the day the trip ends. The payment cards work once, for one exact amount, on two government sites. It's your n8n, your accounts and your keys, and nothing passes through us.</details>
 <details><summary><b>Is the visa bit allowed?</b></summary><br>You're applying for yourself on the official government sites, with your own details, and paying the official price. Kook just does the typing. Always check the current entry rules for your passport before you fly.</details>
 <details><summary><b>Can I use it for a different break, or a different country?</b></summary><br>Yes for the break: change the Surfline spot in ⚙️ Kook settings. Other countries have different visa sites, so you'd rewrite the browser agent's instructions.</details>

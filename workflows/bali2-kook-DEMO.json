@@ -32,7 +32,7 @@
   },
   {
    "parameters": {
-    "jsCode": "// ============ KOOK SETTINGS (DEMO) ============  edit these, nothing else\n// Every message this run sends comes to YOU: the boys' group chat is your Telegram,\n// Ketut and the scooter guy are your mobile, and the QR codes land in your inbox.\nreturn [{ json: {\n  FILMING: true,\n  CREW: ['You', 'Josh', 'Matt', 'Ben'],\n  ME: 'You',\n  MY_PHONE: '+61400000000',              // YOUR mobile (every 'WhatsApp' in the demo lands here)\n  MY_EMAIL: 'you@example.com',            // where the QR entry pack lands\n  TELEGRAM_CHAT_ID: 'YOUR_TELEGRAM_CHAT_ID',  // you, or your group chat\n  TWILIO_FROM: '+61400000001',            // your Twilio number\n  KETUT_VIA_WHATSAPP: false,              // true = Ketut's texts arrive as WhatsApp (join the Twilio sandbox first)\n  TWILIO_WHATSAPP_FROM: '+14155238886',   // Twilio's WhatsApp sandbox number\n  KETUT_PHONE: '+61400000000',            // demo: your phone plays Ketut\n  SCOOTER_PHONE: '+61400000000',          // demo: your phone plays the scooter guy\n  KETUT_CAR: 'white Toyota Avanza',\n  HOME_AIRPORT: 'PER',\n  BREAK: { name: 'Uluwatu', spotId: '5842041f4e65fad6a7708b4b', lat: -8.8149, lng: 115.0884 },\n  MIN_SURF_FT: 6,                          // Surfline face height, the \"six foot\" in the script\n  MIN_DAYS: 3,\n  IDEAL_FT: 7,                             // the 6am pick favours waves closest to this size\n  FORCE_SWELL: true,                       // filming only: if it's flat today, use a pumping week\n  VILLA_BUDGET_PP_NIGHT: 120,              // AUD per person per night\n  COSTS_IDR: { evoa: 500000, levy: 150000, scooterDay: 80000, ketutAirport: 350000, ketutSurfDay: 400000, bintang: 45000 },\n  BEERS_PER_DAY: 4,\n  VISION_MODEL: 'claude-sonnet-5',\n  MORNING_BREAKS: [\n    { name: 'Uluwatu',       spotId: '5842041f4e65fad6a7708b4b' },\n    { name: 'Padang Padang', spotId: '5842041f4e65fad6a7708d44' },\n    { name: 'Bingin',        spotId: '5842041f4e65fad6a7708d3b' },\n    { name: 'Balangan',      spotId: '5842041f4e65fad6a7708d3a' },\n    { name: 'Keramas',       spotId: '5842041f4e65fad6a7708d4e' },\n  ],\n  PASSPORT_PROMPT: \"This is the photo page of a passport. Read the two machine-readable zone (MRZ) lines printed at the very bottom, exactly as printed, character for character. Each line is 44 characters and uses < as the filler. Do not correct or guess anything. Reply with one line of JSON only: {\\\"line1\\\":\\\"...\\\",\\\"line2\\\":\\\"...\\\"}. If the MRZ is not readable, reply {\\\"error\\\":\\\"<why>\\\"}.\",\n  SCRATCH_PROMPT: \"You are documenting a rental scooter at handover so the renter can't be charged for damage that was already there. List every visible scratch, scuff, dent, crack, missing part or worn tyre, with where it is on the bike. Read the number plate if you can. Be specific and don't invent anything you can't see. Reply with one line of JSON only: {\\\"plate\\\":\\\"<plate or null>\\\",\\\"colour\\\":\\\"...\\\",\\\"damage\\\":[{\\\"where\\\":\\\"...\\\",\\\"what\\\":\\\"...\\\",\\\"size\\\":\\\"small|medium|large\\\"}]}\",\n} }];\n"
+    "jsCode": "// ============ KOOK SETTINGS (DEMO) ============  edit these, nothing else\n// Every message this run sends comes to YOU: the boys' group chat is your Telegram,\n// Ketut and the scooter guy are your mobile, and the QR codes land in your inbox.\nreturn [{ json: {\n  FILMING: true,\n  ZERO_SPEND: true,                        // true = costs nothing: no Claude calls (uploads use the sample passport / damage log). false = Claude really reads your photos, about 2c each\n  CREW: ['You', 'Josh', 'Matt', 'Ben'],\n  ME: 'You',\n  MY_PHONE: '+61400000000',              // YOUR mobile (every 'WhatsApp' in the demo lands here)\n  MY_EMAIL: 'you@example.com',            // where the QR entry pack lands\n  TELEGRAM_CHAT_ID: 'YOUR_TELEGRAM_CHAT_ID',  // you, or your group chat\n  TWILIO_FROM: '+61400000001',            // your Twilio number\n  KETUT_VIA_WHATSAPP: false,              // true = Ketut's texts arrive as WhatsApp (join the Twilio sandbox first)\n  TWILIO_WHATSAPP_FROM: '+14155238886',   // Twilio's WhatsApp sandbox number\n  KETUT_PHONE: '+61400000000',            // demo: your phone plays Ketut\n  SCOOTER_PHONE: '+61400000000',          // demo: your phone plays the scooter guy\n  KETUT_CAR: 'white Toyota Avanza',\n  HOME_AIRPORT: 'PER',\n  BREAK: { name: 'Uluwatu', spotId: '5842041f4e65fad6a7708b4b', lat: -8.8149, lng: 115.0884 },\n  MIN_SURF_FT: 6,                          // Surfline face height, the \"six foot\" in the script\n  MIN_DAYS: 3,\n  IDEAL_FT: 7,                             // the 6am pick favours waves closest to this size\n  FORCE_SWELL: true,                       // filming only: if it's flat today, use a pumping week\n  VILLA_BUDGET_PP_NIGHT: 120,              // AUD per person per night\n  COSTS_IDR: { evoa: 500000, levy: 150000, scooterDay: 80000, ketutAirport: 350000, ketutSurfDay: 400000, bintang: 45000 },\n  BEERS_PER_DAY: 4,\n  VISION_MODEL: 'claude-sonnet-5',\n  MORNING_BREAKS: [\n    { name: 'Uluwatu',       spotId: '5842041f4e65fad6a7708b4b' },\n    { name: 'Padang Padang', spotId: '5842041f4e65fad6a7708d44' },\n    { name: 'Bingin',        spotId: '5842041f4e65fad6a7708d3b' },\n    { name: 'Balangan',      spotId: '5842041f4e65fad6a7708d3a' },\n    { name: 'Keramas',       spotId: '5842041f4e65fad6a7708d4e' },\n  ],\n  PASSPORT_PROMPT: \"This is the photo page of a passport. Read the two machine-readable zone (MRZ) lines printed at the very bottom, exactly as printed, character for character. Each line is 44 characters and uses < as the filler. Do not correct or guess anything. Reply with one line of JSON only: {\\\"line1\\\":\\\"...\\\",\\\"line2\\\":\\\"...\\\"}. If the MRZ is not readable, reply {\\\"error\\\":\\\"<why>\\\"}.\",\n  SCRATCH_PROMPT: \"You are documenting a rental scooter at handover so the renter can't be charged for damage that was already there. List every visible scratch, scuff, dent, crack, missing part or worn tyre, with where it is on the bike. Read the number plate if you can. Be specific and don't invent anything you can't see. Reply with one line of JSON only: {\\\"plate\\\":\\\"<plate or null>\\\",\\\"colour\\\":\\\"...\\\",\\\"damage\\\":[{\\\"where\\\":\\\"...\\\",\\\"what\\\":\\\"...\\\",\\\"size\\\":\\\"small|medium|large\\\"}]}\",\n} }];\n"
    },
    "name": "Kook settings",
    "type": "n8n-nodes-base.code",
@@ -448,7 +448,7 @@
      "conditions": [
       {
        "id": "c1",
-       "leftValue": "={{ $json.hasPhoto }}",
+       "leftValue": "={{ $json.hasPhoto && !$('Kook settings').first().json.ZERO_SPEND }}",
        "rightValue": "",
        "operator": {
         "type": "boolean",
@@ -836,15 +836,17 @@
   },
   {
    "parameters": {
-    "from": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP ? $('Kook settings').first().json.TWILIO_WHATSAPP_FROM : $('Kook settings').first().json.TWILIO_FROM }}",
-    "to": "={{ $('Kook settings').first().json.KETUT_PHONE }}",
-    "toWhatsapp": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP }}",
-    "message": "={{ $json.ketut }}",
-    "options": {}
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "=📲 <b>Kook → Ketut (WhatsApp)</b>\n{{ String($json.ketut).replace(/&/g, '&amp;').replace(/</g, '&lt;') }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
    },
    "name": "WhatsApp Ketut: we've landed",
-   "type": "n8n-nodes-base.twilio",
-   "typeVersion": 1,
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
    "position": [
     6752,
     368
@@ -885,15 +887,17 @@
   },
   {
    "parameters": {
-    "from": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP ? $('Kook settings').first().json.TWILIO_WHATSAPP_FROM : $('Kook settings').first().json.TWILIO_FROM }}",
-    "to": "={{ $('Kook settings').first().json.SCOOTER_PHONE }}",
-    "toWhatsapp": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP }}",
-    "message": "=Hi Made! {{ $('Kook settings').first().json.CREW.length }} scooters to {{ $('Best villa within budget').first().json.villa.name }} today at 3pm please, {{ $('Evaluate swell').first().json.nights }} days, surf racks on all of them. I'll send photos at handover 🙏",
-    "options": {}
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "=📲 <b>Kook → Made (scooters) (WhatsApp)</b>\n{{ String('Hi Made! ' + $('Kook settings').first().json.CREW.length + ' scooters to ' + $('Best villa within budget').first().json.villa.name + ' today at 3pm please, ' + $('Evaluate swell').first().json.nights + ' days, surf racks on all of them. I'll send photos at handover 🙏').replace(/&/g, '&amp;').replace(/</g, '&lt;') }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
    },
    "name": "WhatsApp: book the scooters",
-   "type": "n8n-nodes-base.twilio",
-   "typeVersion": 1,
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
    "position": [
     7104,
     368
@@ -979,7 +983,7 @@
      "conditions": [
       {
        "id": "c1",
-       "leftValue": "={{ $json.hasPhoto }}",
+       "leftValue": "={{ $json.hasPhoto && !$('Kook settings').first().json.ZERO_SPEND }}",
        "rightValue": "",
        "operator": {
         "type": "boolean",
@@ -1096,15 +1100,17 @@
   },
   {
    "parameters": {
-    "from": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP ? $('Kook settings').first().json.TWILIO_WHATSAPP_FROM : $('Kook settings').first().json.TWILIO_FROM }}",
-    "to": "={{ $('Kook settings').first().json.SCOOTER_PHONE }}",
-    "toWhatsapp": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP }}",
-    "message": "={{ $('Condition report').first().json.wa }}",
-    "options": {}
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "=📲 <b>Kook → Made (scooters) (WhatsApp)</b>\n{{ String($('Condition report').first().json.wa).replace(/&/g, '&amp;').replace(/</g, '&lt;') }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
    },
    "name": "WhatsApp: scooter guy signs off",
-   "type": "n8n-nodes-base.twilio",
-   "typeVersion": 1,
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
    "position": [
     8864,
     368
@@ -1291,15 +1297,17 @@
   },
   {
    "parameters": {
-    "from": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP ? $('Kook settings').first().json.TWILIO_WHATSAPP_FROM : $('Kook settings').first().json.TWILIO_FROM }}",
-    "to": "={{ $('Kook settings').first().json.KETUT_PHONE }}",
-    "toWhatsapp": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP }}",
-    "message": "={{ $('Pick the cleanest break').first().json.ketut }}",
-    "options": {}
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "=📲 <b>Kook → Ketut (WhatsApp)</b>\n{{ String($('Pick the cleanest break').first().json.ketut).replace(/&/g, '&amp;').replace(/</g, '&lt;') }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
    },
    "name": "WhatsApp Ketut: boards on the roof",
-   "type": "n8n-nodes-base.twilio",
-   "typeVersion": 1,
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
    "position": [
     10272,
     368
