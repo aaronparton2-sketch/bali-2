@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/aaronparton2-sketch/bali-2/releases/latest/download/bali2-kook-DEMO.json"><img alt="Download the demo" src="https://img.shields.io/badge/%E2%AC%87%20DOWNLOAD-THE%20DEMO%20(start%20here)-FF7A45?style=for-the-badge"></a>
+  <a href="https://github.com/aaronparton2-sketch/bali-2/releases/latest/download/bali2-kook-DEMO.json"><img alt="Download the demo" src="https://img.shields.io/badge/DOWNLOAD-the%20demo%20(start%20here)-FF7A45?style=for-the-badge"></a>
   &nbsp;
-  <a href="https://github.com/aaronparton2-sketch/bali-2/releases/latest/download/bali2-kook.json"><img alt="Download the full build" src="https://img.shields.io/badge/%E2%AC%87%20DOWNLOAD-THE%20FULL%20BUILD-0F3B3A?style=for-the-badge"></a>
+  <a href="https://github.com/aaronparton2-sketch/bali-2/releases/latest/download/bali2-kook.json"><img alt="Download the full build" src="https://img.shields.io/badge/DOWNLOAD-the%20full%20build-0F3B3A?style=for-the-badge"></a>
 </p>
 
 <p align="center">
