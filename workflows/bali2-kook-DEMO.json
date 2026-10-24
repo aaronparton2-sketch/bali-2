@@ -1,0 +1,2051 @@
+{
+ "name": "🎬 BALI 2 - Kook (demo: one click, everything to your phone)",
+ "nodes": [
+  {
+   "parameters": {
+    "rule": {
+     "interval": [
+      {
+       "field": "hours",
+       "hoursInterval": 6
+      }
+     ]
+    }
+   },
+   "name": "Every 6h",
+   "type": "n8n-nodes-base.scheduleTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    60,
+    288
+   ]
+  },
+  {
+   "parameters": {},
+   "name": "Run (manual)",
+   "type": "n8n-nodes-base.manualTrigger",
+   "typeVersion": 1,
+   "position": [
+    60,
+    448
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// ============ KOOK SETTINGS (DEMO) ============  edit these, nothing else\n// Every message this run sends comes to YOU: the boys' group chat is your Telegram,\n// Ketut and the scooter guy are your mobile, and the QR codes land in your inbox.\nreturn [{ json: {\n  FILMING: true,\n  CREW: ['You', 'Josh', 'Matt', 'Ben'],\n  ME: 'You',\n  MY_PHONE: '+61400000000',              // YOUR mobile (every 'WhatsApp' in the demo lands here)\n  MY_EMAIL: 'you@example.com',            // where the QR entry pack lands\n  TELEGRAM_CHAT_ID: 'YOUR_TELEGRAM_CHAT_ID',  // you, or your group chat\n  TWILIO_FROM: '+61400000001',            // your Twilio number\n  KETUT_VIA_WHATSAPP: false,              // true = Ketut's texts arrive as WhatsApp (join the Twilio sandbox first)\n  TWILIO_WHATSAPP_FROM: '+14155238886',   // Twilio's WhatsApp sandbox number\n  KETUT_PHONE: '+61400000000',            // demo: your phone plays Ketut\n  SCOOTER_PHONE: '+61400000000',          // demo: your phone plays the scooter guy\n  KETUT_CAR: 'white Toyota Avanza',\n  HOME_AIRPORT: 'PER',\n  BREAK: { name: 'Uluwatu', spotId: '5842041f4e65fad6a7708b4b', lat: -8.8149, lng: 115.0884 },\n  MIN_SURF_FT: 6,                          // Surfline face height, the \"six foot\" in the script\n  MIN_DAYS: 3,\n  IDEAL_FT: 7,                             // the 6am pick favours waves closest to this size\n  FORCE_SWELL: true,                       // filming only: if it's flat today, use a pumping week\n  VILLA_BUDGET_PP_NIGHT: 120,              // AUD per person per night\n  COSTS_IDR: { evoa: 500000, levy: 150000, scooterDay: 80000, ketutAirport: 350000, ketutSurfDay: 400000, bintang: 45000 },\n  BEERS_PER_DAY: 4,\n  VISION_MODEL: 'claude-sonnet-5',\n  MORNING_BREAKS: [\n    { name: 'Uluwatu',       spotId: '5842041f4e65fad6a7708b4b' },\n    { name: 'Padang Padang', spotId: '5842041f4e65fad6a7708d44' },\n    { name: 'Bingin',        spotId: '5842041f4e65fad6a7708d3b' },\n    { name: 'Balangan',      spotId: '5842041f4e65fad6a7708d3a' },\n    { name: 'Keramas',       spotId: '5842041f4e65fad6a7708d4e' },\n  ],\n  PASSPORT_PROMPT: \"This is the photo page of a passport. Read the two machine-readable zone (MRZ) lines printed at the very bottom, exactly as printed, character for character. Each line is 44 characters and uses < as the filler. Do not correct or guess anything. Reply with one line of JSON only: {\\\"line1\\\":\\\"...\\\",\\\"line2\\\":\\\"...\\\"}. If the MRZ is not readable, reply {\\\"error\\\":\\\"<why>\\\"}.\",\n  SCRATCH_PROMPT: \"You are documenting a rental scooter at handover so the renter can't be charged for damage that was already there. List every visible scratch, scuff, dent, crack, missing part or worn tyre, with where it is on the bike. Read the number plate if you can. Be specific and don't invent anything you can't see. Reply with one line of JSON only: {\\\"plate\\\":\\\"<plate or null>\\\",\\\"colour\\\":\\\"...\\\",\\\"damage\\\":[{\\\"where\\\":\\\"...\\\",\\\"what\\\":\\\"...\\\",\\\"size\\\":\\\"small|medium|large\\\"}]}\",\n} }];\n"
+   },
+   "name": "Kook settings",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    240,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "=https://r.jina.ai/https://services.surfline.com/kbyg/spots/forecasts/surf?spotId={{ $('Kook settings').first().json.BREAK.spotId }}&days=5&intervalHours=6",
+    "options": {
+     "timeout": 45000
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-Return-Format",
+       "value": "text"
+      }
+     ]
+    }
+   },
+   "name": "Surfline: surf",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    416,
+    368
+   ],
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "=https://r.jina.ai/https://services.surfline.com/kbyg/spots/forecasts/wind?spotId={{ $('Kook settings').first().json.BREAK.spotId }}&days=5&intervalHours=6",
+    "options": {
+     "timeout": 45000
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-Return-Format",
+       "value": "text"
+      }
+     ]
+    }
+   },
+   "name": "Surfline: wind",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    592,
+    368
+   ],
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "=https://r.jina.ai/https://services.surfline.com/kbyg/spots/forecasts/swells?spotId={{ $('Kook settings').first().json.BREAK.spotId }}&days=5&intervalHours=6",
+    "options": {
+     "timeout": 45000
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-Return-Format",
+       "value": "text"
+      }
+     ]
+    }
+   },
+   "name": "Surfline: swells",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    768,
+    368
+   ],
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "jsCode": "function load(x) {\n  if (!x) return null;\n  if (x.data && typeof x.data === 'object' && !Array.isArray(x.data)) return x;\n  const raw = (typeof x === 'string') ? x\n            : (typeof x.data === 'string') ? x.data\n            : (typeof x.body === 'string') ? x.body : JSON.stringify(x);\n  const i = raw.indexOf('{');\n  try { return JSON.parse(i >= 0 ? raw.slice(i) : raw); } catch (e) { return null; }\n}\nconst COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst compass = d => COMPASS[Math.round(((d || 0) % 360) / 22.5) % 16];\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];\nconst MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];\nconst nice = iso => { const d = new Date(iso + 'T00:00:00Z'); return DAYS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()]; };\nconst balToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // Bali = UTC+8\nconst addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\n\n// Surfline split its old /wave endpoint into /surf + /swells (the old one now 404s), so\n// v2 reads three feeds and stitches them together on the timestamp.\nlet surf = [], wind = [], swells = [];\ntry { surf = load($('Surfline: surf').first().json).data.surf || []; } catch (e) {}\ntry { wind = load($('Surfline: wind').first().json).data.wind || []; } catch (e) {}\ntry { swells = load($('Surfline: swells').first().json).data.swells || []; } catch (e) {}\nconst W = {}; wind.forEach(w => W[w.timestamp] = w);\nconst S = {}; swells.forEach(s => S[s.timestamp] = s);\nconst rows = surf.map(s => {\n  const w = W[s.timestamp] || {};\n  const prim = ((S[s.timestamp] || {}).swells || []).filter(x => x.height > 0)\n               .sort((a, b) => (b.impact || 0) - (a.impact || 0))[0] || {};\n  const local = new Date((s.timestamp + (s.utcOffset || 8) * 3600) * 1000);\n  return {\n    ts: s.timestamp, date: local.toISOString().slice(0, 10), hour: local.getUTCHours(),\n    min: s.surf.min, max: s.surf.max, human: s.surf.humanRelation,\n    windType: w.directionType || 'unknown', windKts: Math.round(w.speed || 0), windDir: compass(w.direction),\n    swellFt: prim.height ? +prim.height.toFixed(1) : null, swellS: prim.period || null, swellDir: compass(prim.direction),\n  };\n});\nreturn rows.length ? rows.map(r => ({ json: r })) : [{ json: { empty: true } }];\n"
+   },
+   "name": "Forecast",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    944,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "function load(x) {\n  if (!x) return null;\n  if (x.data && typeof x.data === 'object' && !Array.isArray(x.data)) return x;\n  const raw = (typeof x === 'string') ? x\n            : (typeof x.data === 'string') ? x.data\n            : (typeof x.body === 'string') ? x.body : JSON.stringify(x);\n  const i = raw.indexOf('{');\n  try { return JSON.parse(i >= 0 ? raw.slice(i) : raw); } catch (e) { return null; }\n}\nconst COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst compass = d => COMPASS[Math.round(((d || 0) % 360) / 22.5) % 16];\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];\nconst MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];\nconst nice = iso => { const d = new Date(iso + 'T00:00:00Z'); return DAYS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()]; };\nconst balToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // Bali = UTC+8\nconst addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\n\n// The trigger: SIX FOOT and OFFSHORE, three days in a row, starting tomorrow or later\n// (a swell that peaks today is one you have already missed: you can't fly back in time).\nconst S = $('Kook settings').first().json;\nconst rows = $('Forecast').all().map(i => i.json).filter(r => !r.empty);\nconst today = balToday();\n\nconst byDay = {};\nrows.forEach(r => (byDay[r.date] = byDay[r.date] || []).push(r));\nlet days = Object.keys(byDay).sort().map(d => {\n  const daylight = byDay[d].filter(r => r.hour >= 6 && r.hour <= 12);\n  const use = daylight.length ? daylight : byDay[d];\n  const best = use.reduce((a, b) => (b.max > a.max ? b : a));\n  const dawn = byDay[d].find(r => r.hour === 6) || best;         // dawn wind decides \"offshore\"\n  // \"Six foot\" means the MIDDLE of Surfline's range: 4-6ft is not a six foot day, 6-8ft is.\n  return { date: d, on: (best.min + best.max) / 2 >= S.MIN_SURF_FT && dawn.windType === 'Offshore',\n           min: best.min, max: best.max, human: best.human, windType: dawn.windType,\n           windKts: dawn.windKts, windDir: dawn.windDir,\n           swellFt: best.swellFt, swellS: best.swellS, swellDir: best.swellDir };\n});\n\nfunction findWindow(list) {\n  for (let i = 0; i < list.length; i++) {\n    if (list[i].date <= today || !list[i].on) continue;\n    let j = i; while (j < list.length && list[j].on) j++;\n    if (j - i >= S.MIN_DAYS) return list.slice(i, j);\n  }\n  return null;\n}\nlet win = findWindow(days), demo = false;\n\n// FILMING SAFETY NET: if the real forecast is flat on the day you hit record, swap in a\n// pumping week so the run still goes end to end. Off in the public build.\nif (!win && S.FORCE_SWELL) {\n  demo = true;\n  const shape = [[6, 8, 'Overhead to well overhead', 4], [8, 10, '2x overhead', 3], [6, 8, 'Overhead to well overhead', 6]];\n  win = shape.map((s, k) => ({ date: addDays(today, 2 + k), on: true, min: s[0], max: s[1], human: s[2],\n    windType: 'Offshore', windKts: s[3], windDir: 'ESE', swellFt: 7.5 + k, swellS: 16 - k, swellDir: 'SW' }));\n}\nif (!win) return [{ json: { swellOn: false, checked: days.length, why: 'no 3-day 6ft offshore window in the forecast' } }];\n\nconst departDate = addDays(win[0].date, -1);          // land the day before it turns on\nconst returnDate = addDays(win[win.length - 1].date, 1);\nconst nights = Math.round((new Date(returnDate) - new Date(departDate)) / 864e5);\nconst peak = win.reduce((a, b) => (b.max > a.max ? b : a));\nconst lines = win.map(d => `${nice(d.date)} · ${d.min}-${d.max}ft · offshore ${d.windKts}kts` +\n  (d.swellFt ? ` · ${d.swellFt}ft @ ${d.swellS}s ${d.swellDir}` : '')).join('\\n');\n\nreturn [{ json: {\n  swellOn: true, demo, onDays: win.length, departDate, returnDate, nights,\n  peakMin: peak.min, peakMax: peak.max, peakHuman: peak.human,\n  firstDay: win[0].date, lines, window: win,\n} }];\n"
+   },
+   "name": "Evaluate swell",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1120,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "c1",
+       "leftValue": "={{ $json.swellOn }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   },
+   "name": "Swell ON?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    1296,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "content": "## 1 · Watch the swell 🌊\nSurfline every 6h. Fires on 6ft+ and offshore, 3 days straight, starting tomorrow.",
+    "width": 1236,
+    "height": 470,
+    "color": 4
+   },
+   "name": "note-9",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    200,
+    180
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// FILMING: pinned Google Flights results (no Apify call, $0). Same shape as the actor.\nreturn [{ json: { all_flights: [\n  { price: 486, airlines: 'Jetstar', stops: 0, flight_numbers: 'JQ 116' },\n  { price: 512, airlines: 'AirAsia', stops: 0, flight_numbers: 'QZ 545' },\n  { price: 698, airlines: 'Virgin Australia', stops: 0, flight_numbers: 'VA 1505' },\n  { price: 815, airlines: 'Qantas', stops: 0, flight_numbers: 'QF 1915' },\n] } }];\n"
+   },
+   "name": "Apify: cheapest flights",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1472,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// FILMING: pinned Airbnb results (no Apify call, $0). Same shape as tri_angle~airbnb-scraper.\nconst e = $('Evaluate swell').first().json;\nconst url = `https://www.airbnb.com.au/s/Uluwatu--Bali/homes?checkin=${e.departDate}&checkout=${e.returnDate}&adults=4`;\nconst mk = (title, lat, lng, nightly, nights) => ({ title, url, coordinates: { latitude: lat, longitude: lng },\n  price: { qualifier: 'total', price: `$${nightly * nights} AUD`, breakDown: { basePrice: { description: `${nights} nights x $${nightly} AUD` } } } });\nconst n = e.nights;\nreturn [\n  mk('Clifftop Uluwatu villa · 4BR · infinity pool', -8.8128, 115.0901, 395, n),\n  mk('Surfers bungalows · walk to the Uluwatu steps', -8.8171, 115.0895, 340, n),\n  mk('Bingin cliff villa · 4BR', -8.8052, 115.1131, 410, n),\n  mk('Luxury estate · 6BR · chef', -8.8302, 115.1210, 980, n),\n  mk('Canggu loft · 2BR', -8.6478, 115.1385, 210, n),\n].map(json => ({ json }));\n"
+   },
+   "name": "Apify: villas near the surf",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1648,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "function load(x) {\n  if (!x) return null;\n  if (x.data && typeof x.data === 'object' && !Array.isArray(x.data)) return x;\n  const raw = (typeof x === 'string') ? x\n            : (typeof x.data === 'string') ? x.data\n            : (typeof x.body === 'string') ? x.body : JSON.stringify(x);\n  const i = raw.indexOf('{');\n  try { return JSON.parse(i >= 0 ? raw.slice(i) : raw); } catch (e) { return null; }\n}\nconst COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst compass = d => COMPASS[Math.round(((d || 0) % 360) / 22.5) % 16];\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];\nconst MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];\nconst nice = iso => { const d = new Date(iso + 'T00:00:00Z'); return DAYS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()]; };\nconst balToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // Bali = UTC+8\nconst addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\n\n// Cheapest flight, and the villa CLOSEST TO THE BREAK that fits the per-person budget.\n// Price parsing is the one JAPOW fixed against live Airbnb data: anchor on the currency\n// symbol, because \"5 nights x $564\" made the old regex return 5 as the nightly price.\nconst S = $('Kook settings').first().json;\nconst BRK = S.BREAK;\nfunction flat(items) {\n  let a = items.map(i => i.json);\n  if (a.length === 1 && Array.isArray(a[0])) a = a[0];\n  if (a.length === 1 && a[0] && Array.isArray(a[0].data)) a = a[0].data;\n  return a;\n}\nfunction metres(lat, lng) {\n  if (typeof lat !== 'number' || typeof lng !== 'number') return null;\n  const R = 6371000, r = x => x * Math.PI / 180;\n  const dLat = r(lat - BRK.lat), dLng = r(lng - BRK.lng);\n  const a = Math.sin(dLat / 2) ** 2 + Math.cos(r(BRK.lat)) * Math.cos(r(lat)) * Math.sin(dLng / 2) ** 2;\n  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));\n}\nfunction nightly(it) {\n  const desc = (((it.price || {}).breakDown || {}).basePrice || {}).description || '';\n  const money = [...desc.matchAll(/[$£€¥]\\s*([\\d,]+(?:\\.\\d+)?)/g)].map(m => parseFloat(m[1].replace(/,/g, ''))).filter(n => !isNaN(n));\n  if (money.length) return Math.round(Math.max(...money));\n  const p = it.price || {};\n  const n = parseFloat(String(p.price || '').replace(/[^0-9.]/g, ''));\n  if (isNaN(n)) return null;\n  const nm = String(desc).match(/(\\d+)\\s*nights?/i);\n  return Math.round(p.qualifier === 'total' && nm ? n / +nm[1] : n);\n}\n\nlet f = $('Apify: cheapest flights').first().json; if (Array.isArray(f)) f = f[0];\nconst flights = ((f && (f.all_flights || f.best_flights)) || []).filter(x => x.price).sort((a, b) => a.price - b.price);\nconst cf = flights[0] || {};\n\nconst crew = S.CREW.length;\nconst villas = flat($('Apify: villas near the surf').all()).map(v => {\n  const c = v.coordinates || {};\n  const n = nightly(v);\n  return { name: v.title || v.name || 'Villa', url: (v.url || '').split('?')[0], nightly: n,\n           perHead: n ? Math.round(n / crew) : null, walk_m: metres(c.latitude, c.longitude),\n           lat: c.latitude, lng: c.longitude, rating: v.rating && v.rating.guestSatisfaction || v.rating || null };\n}).filter(v => v.nightly);\nconst inBudget = villas.filter(v => v.perHead <= S.VILLA_BUDGET_PP_NIGHT);\nconst byWalk = (a, b) => (a.walk_m ?? 9e9) - (b.walk_m ?? 9e9);\nconst pick = (inBudget.length ? inBudget : villas).slice().sort(byWalk)[0] || {};\n\nreturn [{ json: {\n  flight: { price: cf.price || null, airline: cf.airlines || '?', direct: cf.stops === 0 || cf.stops === '0',\n            flightNo: cf.flight_numbers || cf.flightNumber || null },\n  villa: pick, overBudget: !inBudget.length, considered: villas.length,\n} }];\n"
+   },
+   "name": "Best villa within budget",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1824,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "https://api.frankfurter.dev/v1/latest?base=IDR&symbols=AUD",
+    "options": {
+     "timeout": 30000
+    }
+   },
+   "name": "Live exchange rate",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2000,
+    368
+   ],
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "jsCode": "function load(x) {\n  if (!x) return null;\n  if (x.data && typeof x.data === 'object' && !Array.isArray(x.data)) return x;\n  const raw = (typeof x === 'string') ? x\n            : (typeof x.data === 'string') ? x.data\n            : (typeof x.body === 'string') ? x.body : JSON.stringify(x);\n  const i = raw.indexOf('{');\n  try { return JSON.parse(i >= 0 ? raw.slice(i) : raw); } catch (e) { return null; }\n}\nconst COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst compass = d => COMPASS[Math.round(((d || 0) % 360) / 22.5) % 16];\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];\nconst MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];\nconst nice = iso => { const d = new Date(iso + 'T00:00:00Z'); return DAYS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()]; };\nconst balToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // Bali = UTC+8\nconst addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\n\n// The whole trip, per person, in AUD. Rupiah prices convert at today's live rate.\nconst S = $('Kook settings').first().json;\nconst e = $('Evaluate swell').first().json;\nconst p = $('Best villa within budget').first().json;\nlet fx = $('Live exchange rate').first().json;\nif (typeof fx.data === 'string') { try { fx = JSON.parse(fx.data); } catch (x) {} }\nconst rate = (fx.rates && fx.rates.AUD) || 0.000079;          // AUD per 1 IDR, fallback if the API is down\nconst crew = S.CREW.length, nights = e.nights, C = S.COSTS_IDR;\nconst aud = idr => Math.round(idr * rate);\nconst items = [\n  ['✈️', 'Flights (return)', Math.round(p.flight.price || 0)],\n  ['🏝️', `Villa (${nights} nights, split ${crew} ways)`, Math.round((p.villa.nightly || 0) * nights / crew)],\n  ['🛵', `Scooter (${nights} days)`, aud(C.scooterDay * nights)],\n  ['🚕', 'Ketut (airport runs + dawn surf runs)', aud((2 * C.ketutAirport + e.onDays * C.ketutSurfDay) / crew)],\n  ['🛂', 'e-Visa + Bali tourist tax', aud(C.evoa + C.levy)],\n  ['🍺', `Bintangs (est. ${S.BEERS_PER_DAY}/day)`, aud(C.bintang * S.BEERS_PER_DAY * nights)],\n];\nconst total = items.reduce((a, i) => a + i[2], 0);\nconst v = p.villa;\nconst walk = v.walk_m != null ? (v.walk_m < 1000 ? `${v.walk_m}m` : `${(v.walk_m / 1000).toFixed(1)}km`) + ` to ${S.BREAK.name}` : '';\nconst pitch =\n`🌊🎉 <b>SWELL EVENT</b> · ${esc(S.BREAK.name)} is about to PUMP\n\n📏 ${e.peakMin}-${e.peakMax}ft (${esc(e.peakHuman)}), offshore ${e.onDays} days straight\n${esc(e.lines)}\n\n✈️ ${S.HOME_AIRPORT}→DPS ${nice(e.departDate)} to ${nice(e.returnDate)}: A$${p.flight.price} return (${esc(p.flight.airline)}${p.flight.direct ? ', direct' : ''})\n🏝️ <a href=\"${esc(v.url)}\">${esc(v.name)}</a> · ${walk} · A$${v.perHead}/night each\n\n💸 <b>Per person, everything:</b>\n${items.map(i => `${i[0]} ${esc(i[1])}: A$${i[2]}`).join('\\n')}\n<b>Total: A$${total.toLocaleString('en-AU')}</b>\n\nKook gives you one choice.`;\nreturn [{ json: { pitch, total, perPerson: items, rate, crew } }];\n"
+   },
+   "name": "Cost it all up",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2176,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "={{ $('Cost it all up').first().json.pitch }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
+   },
+   "name": "Group chat: the pitch",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2352,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "content": "## 2 · The hunt 🔎\nCheapest flights, the closest villa to the break within budget, then EVERYTHING per person at today's rupiah rate.",
+    "width": 1060,
+    "height": 470,
+    "color": 5
+   },
+   "name": "note-16",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    1432,
+    180
+   ]
+  },
+  {
+   "parameters": {
+    "operation": "sendAndWait",
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "message": "🔒 Lock in or miss out?\n\nWhoever locks in, Kook grabs their passport and sorts the electronic visa, the arrival card and the Bali entry tax.",
+    "responseType": "approval",
+    "approvalOptions": {
+     "values": {
+      "approvalType": "double",
+      "approveLabel": "🔒 Lock in",
+      "disapproveLabel": "😢 Miss out"
+     }
+    },
+    "options": {
+     "limitWaitTime": {
+      "values": {
+       "limitType": "afterTimeInterval",
+       "resumeAmount": 30,
+       "resumeUnit": "minutes"
+      }
+     }
+    }
+   },
+   "name": "Lock in or miss out?",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2528,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "c1",
+       "leftValue": "={{ $json.data?.approved === true }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   },
+   "name": "Locked in?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    2704,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "=🛂 <b>Locked in.</b> Kook needs your passport.\n\nSnap the photo page here, takes 10 seconds:\n{{ $execution.resumeFormUrl }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
+   },
+   "name": "Kook needs your passport",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2880,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "resume": "form",
+    "formTitle": "🛂 Kook needs your passport",
+    "formDescription": "Snap the photo page of your passport, flat and in good light. Kook reads it, checks every digit, then sorts your electronic visa, arrival card and the Bali entry tax.",
+    "formFields": {
+     "values": [
+      {
+       "fieldLabel": "Passport photo page",
+       "fieldType": "file",
+       "multipleFiles": false,
+       "acceptFileTypes": ".jpg,.jpeg,.png",
+       "requiredField": false
+      },
+      {
+       "fieldLabel": "Selfie (for the e-Visa)",
+       "fieldType": "file",
+       "multipleFiles": false,
+       "acceptFileTypes": ".jpg,.jpeg,.png",
+       "requiredField": false
+      },
+      {
+       "fieldLabel": "Email for your QR codes",
+       "fieldType": "email",
+       "requiredField": false
+      }
+     ]
+    },
+    "responseMode": "onReceived",
+    "limitWaitTime": true,
+    "limitType": "afterTimeInterval",
+    "resumeAmount": 30,
+    "resumeUnit": "minutes",
+    "options": {
+     "respondWithOptions": {
+      "values": {
+       "respondWith": "text",
+       "formSubmittedText": "Got it 🤙 Kook's on it. Check the group chat."
+      }
+     }
+    }
+   },
+   "name": "Passport upload (form)",
+   "type": "n8n-nodes-base.wait",
+   "typeVersion": 1.1,
+   "position": [
+    3056,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// Forms name their file fields after the label, so find the photo whatever it is called\n// and move it to a fixed key ('photo') that the next nodes can rely on.\nconst it = $input.first();\nconst bin = it.binary || {};\nconst keys = Object.keys(bin);\nconst imgs = keys.filter(k => /^image\\//.test(bin[k].mimeType || '')).sort();\nconst pick = keys.find(k => /passport/i.test(k)) || imgs.find(k => !/selfie/i.test(k)) || imgs[0];\nif (!pick) return [{ json: { hasPhoto: false, email: it.json['Email for your QR codes'] || null } }];\nreturn [{ json: { hasPhoto: true, mime: bin[pick].mimeType, email: it.json['Email for your QR codes'] || null },\n          binary: { photo: bin[pick] } }];\n"
+   },
+   "name": "Grab the passport",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    3232,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "c1",
+       "leftValue": "={{ $json.hasPhoto }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   },
+   "name": "Passport uploaded?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    3408,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "operation": "resize",
+    "dataPropertyName": "photo",
+    "width": 1600,
+    "height": 1600,
+    "resizeOption": "onlyIfLarger",
+    "options": {
+     "format": "jpeg",
+     "quality": 85
+    }
+   },
+   "name": "Shrink the photo",
+   "type": "n8n-nodes-base.editImage",
+   "typeVersion": 1,
+   "position": [
+    3584,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// Claude takes images as base64 (max 5MB), which is why the photo is shrunk first.\nconst out = [];\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  let image_b64 = null;\n  try { image_b64 = (await this.helpers.getBinaryDataBuffer(i, 'photo')).toString('base64'); } catch (e) {}\n  out.push({ json: { ...items[i].json, image_b64, media_type: 'image/jpeg' } });\n}\nreturn out;\n"
+   },
+   "name": "Encode for Claude",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    3760,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://api.anthropic.com/v1/messages",
+    "options": {
+     "timeout": 90000
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "anthropic-version",
+       "value": "2023-06-01"
+      }
+     ]
+    },
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ model: $('Kook settings').first().json.VISION_MODEL, max_tokens: 300, messages: [{ role: 'user', content: [ { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: $json.image_b64 } }, { type: 'text', text: $('Kook settings').first().json.PASSPORT_PROMPT } ] }] }) }}",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "anthropicApi"
+   },
+   "name": "Read passport (Claude vision)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    3936,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "function load(x) {\n  if (!x) return null;\n  if (x.data && typeof x.data === 'object' && !Array.isArray(x.data)) return x;\n  const raw = (typeof x === 'string') ? x\n            : (typeof x.data === 'string') ? x.data\n            : (typeof x.body === 'string') ? x.body : JSON.stringify(x);\n  const i = raw.indexOf('{');\n  try { return JSON.parse(i >= 0 ? raw.slice(i) : raw); } catch (e) { return null; }\n}\nconst COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst compass = d => COMPASS[Math.round(((d || 0) % 360) / 22.5) % 16];\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];\nconst MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];\nconst nice = iso => { const d = new Date(iso + 'T00:00:00Z'); return DAYS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()]; };\nconst balToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // Bali = UTC+8\nconst addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\n\nconst VAL = c => c === '<' ? 0 : /[0-9]/.test(c) ? +c : c.charCodeAt(0) - 55;\nconst cdig = s => String([...s].reduce((t, c, i) => t + VAL(c) * [7, 3, 1][i % 3], 0) % 10);\nconst pad = (s, n) => (s + '<'.repeat(n)).slice(0, n);\n\n// Never trust the vision model's read on its own. The MRZ carries FIVE check digits\n// (ICAO 9303); a single misread character fails at least one of them, so a hallucinated\n// passport number can't slip through to a visa application.\nconst get = n => { try { return $(n).first().json; } catch (x) { return null; } };\nconst S = get('Kook settings') || {};\nconst e = get('Evaluate swell') || { departDate: (get('Find the open trip') || {}).depart_date || balToday() };\nconst inp = $input.first().json;\nlet line1 = inp.line1, line2 = inp.line2, src = inp.specimen ? 'specimen' : 'photo', err = null;\nif (!line1 && inp.content) {\n  const txt = (inp.content.find(c => c.type === 'text') || {}).text || '';\n  try { const j = JSON.parse((txt.match(/\\{[\\s\\S]*\\}/) || ['{}'])[0]); line1 = j.line1; line2 = j.line2; err = j.error || null; }\n  catch (x) { err = 'unreadable reply'; }\n}\nconst norm = s => String(s || '').toUpperCase().replace(/\\s/g, '').replace(/[«‹]/g, '<').replace(/[^A-Z0-9<]/g, '');\nline1 = pad(norm(line1), 44);\n// OCR's classic confusion: O for 0 in a field that can only be digits. Fix it there only.\nconst digits = s => s.replace(/O/g, '0').replace(/[IL]/g, '1');\nfunction grade(raw) {\n  const L2 = raw.slice(0, 13) + digits(raw.slice(13, 20)) + raw[20] + digits(raw.slice(21, 28)) + raw.slice(28);\n  const f = { number: L2.slice(0, 9), nat: L2.slice(10, 13), dob: L2.slice(13, 19), sex: L2[20],\n              expiry: L2.slice(21, 27), personal: L2.slice(28, 42) };\n  const checks = [\n    cdig(f.number) === L2[9], cdig(f.dob) === L2[19], cdig(f.expiry) === L2[27],\n    cdig(f.personal) === (L2[42] === '<' ? '0' : L2[42]),\n    cdig(L2.slice(0, 10) + L2.slice(13, 20) + L2.slice(21, 43)) === L2[43],\n  ];\n  return { L2, f, passed: checks.filter(Boolean).length };\n}\n// Vision models read every character right but MISCOUNT runs of '<' (tested: Claude\n// dropped one filler from each line of the ICAO sample). So when line 2 isn't 44 long,\n// try growing or shrinking each run of fillers and keep the version where the check\n// digits pass. A genuinely misread character can't pass all five by luck.\nconst raw2 = norm(line2);\nconst cands = [pad(raw2, 44)];\nconst diff = 44 - raw2.length;\nif (diff) for (const m of raw2.matchAll(/<+/g)) {\n  if (diff > 0) cands.push(raw2.slice(0, m.index) + '<'.repeat(diff) + raw2.slice(m.index));\n  else if (m[0].length > -diff) cands.push(raw2.slice(0, m.index) + raw2.slice(m.index - diff));\n}\nconst best = cands.filter(c => c.length === 44).map(grade).sort((a, b) => b.passed - a.passed)[0];\nconst { L2, f, passed } = best;\nconst names = line1.slice(5).split('<<');\nconst surname = (names[0] || '').replace(/</g, ' ').trim();\nconst given = (names[1] || '').replace(/</g, ' ').trim();\nconst ymd = (s, future) => { const yy = +s.slice(0, 2); const c = future || yy > +String(new Date().getFullYear()).slice(2) ? (future ? 2000 : 1900) : 2000;\n  return `${c + yy}-${s.slice(2, 4)}-${s.slice(4, 6)}`; };\nconst expiryISO = ymd(f.expiry, true), dobISO = ymd(f.dob, false);\n// Indonesia turns you around at the gate if the passport has under 6 months left on arrival.\nconst sixMonths = addDays(e.departDate, 183);\nconst longEnough = expiryISO >= sixMonths;\nconst valid = !err && passed === 5 && line1.startsWith('P') && longEnough;\nconst title = s => s.toLowerCase().replace(/\\b\\w/g, c => c.toUpperCase());\nconst d = new Date(expiryISO + 'T00:00:00Z');\nconst expNice = `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;\nconst message = valid\n  ? `🛂 <b>Passport read and verified</b>${src === 'specimen' ? ' (specimen)' : ''}\n${esc(title(given))} ${esc(title(surname))} · ${f.nat}\nExpires ${expNice} ✅ more than 6 months after landing\nMRZ check digits ${passed}/5 ✓ · No. ●●●●●●${f.number.replace(/</g, '').slice(-3)}`\n  : `❌ <b>Kook couldn't verify that passport</b>\n${err ? esc(err) : passed < 5 ? `Check digits ${passed}/5. Retake the photo flat, in good light, with the two lines at the bottom sharp.` : `It expires ${expNice}. Indonesia needs 6 months left when you land.`}`;\nreturn [{ json: { valid, src, passed, surname, given, name: `${title(given)} ${title(surname)}`.trim(),\n  nationality: f.nat, number: f.number.replace(/</g, ''), sex: f.sex, dob: dobISO, expiry: expiryISO,\n  expiryNice: expNice, line1, line2: L2, message, email: (get('Grab the passport') || {}).email || S.MY_EMAIL } }];\n"
+   },
+   "name": "Check the MRZ",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    4112,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "={{ $json.message }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
+   },
+   "name": "Passport verified",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    4288,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "=😢 <b>Missed out.</b> Enjoy the 9 to 5. Kook will let you know how good it was.",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
+   },
+   "name": "Missed out",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    2704,
+    600
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "const VAL = c => c === '<' ? 0 : /[0-9]/.test(c) ? +c : c.charCodeAt(0) - 55;\nconst cdig = s => String([...s].reduce((t, c, i) => t + VAL(c) * [7, 3, 1][i % 3], 0) % 10);\nconst pad = (s, n) => (s + '<'.repeat(n)).slice(0, n);\n\n// No photo uploaded (or filming without a real passport): build a SPECIMEN passport for\n// the crew's organiser with genuine ICAO check digits, so the verifier below runs for real.\nconst S = $('Kook settings').first().json;\nconst num = 'PA4471205', nat = 'AUS', dob = '950817', exp = '340612', pers = '<'.repeat(14);\nconst line1 = pad(`P<${nat}SPECIMEN<<${S.ME.toUpperCase()}`, 44);\nconst body = num + cdig(num) + nat + dob + cdig(dob) + 'M' + exp + cdig(exp) + pers + cdig(pers);\nconst comp = num + cdig(num) + dob + cdig(dob) + exp + cdig(exp) + pers + cdig(pers);\nconst line2 = body + cdig(comp);\nreturn [{ json: { specimen: true, line1, line2 } }];\n"
+   },
+   "name": "Use specimen passport",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    3584,
+    600
+   ]
+  },
+  {
+   "parameters": {
+    "content": "## 3 · Lock in or miss out 🔒\nOne tap. Then Kook grabs the passport: Claude reads the MRZ, and all 5 ICAO check digits + the 6-month rule are verified in code.",
+    "width": 1940,
+    "height": 470,
+    "color": 6
+   },
+   "name": "note-30",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    2488,
+    180
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// FILMING: a Duffel order response, trimmed. The public build creates a real HOLD order\n// on Duffel with every passenger's passport (read from the MRZ above) attached.\nconst e = $('Evaluate swell').first().json;\nconst p = $('Best villa within budget').first().json;\nconst S = $('Kook settings').first().json;\nreturn [{ json: { booked: true, pnr: 'KQ7R4P', flightNo: (p.flight.flightNo || 'JQ 116').replace(/\\s+/, ' '),\n  airline: p.flight.airline, departTime: '09:50', arriveTime: '13:25', date: e.departDate,\n  passengers: S.CREW.length, message: `✈️ <b>Flights held for ${S.CREW.length}</b>: ${p.flight.airline} ${p.flight.flightNo}, ${e.departDate} 09:50 → 13:25. Booking ref KQ7R4P.` } }];\n"
+   },
+   "name": "Book flights (Duffel)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    4464,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// FILMING: what the browser agent returns after \"request to book\" on Airbnb.\nconst v = $('Best villa within budget').first().json.villa;\nreturn [{ json: { booked: true, confirmation: 'HMQ4X2KZ8T', name: v.name } }];\n"
+   },
+   "name": "Book villa (browser agent)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    4640,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "={{ $('Book flights (Duffel)').first().json.message }}\n🏝️ <b>Villa booked</b>: {{ $json.name }} (conf {{ $json.confirmation }})",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
+   },
+   "name": "Group chat: booked",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    4816,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "content": "## 4 · Book it ✈️\nFlights held with every passport attached (Duffel). Villa booked by a browser agent.",
+    "width": 532,
+    "height": 470,
+    "color": 3
+   },
+   "name": "note-34",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    4424,
+    180
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// FILMING: an Airwallex single-use virtual card, capped at exactly the e-Visa + tax.\n// The real card number is passed to the browser agent as a domain-locked secret, so it\n// is only ever typed into the two government payment pages, and it dies after one use.\nreturn [{ json: { cardId: 'demo-card', last4: '4417', singleUse: true, limitIdr: 650000, allowedDomains: ['evisa.imigrasi.go.id', 'lovebali.baliprov.go.id'] } }];\n"
+   },
+   "name": "Single-use card (Airwallex)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    4992,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// FILMING: the browser agent's structured output from evisa.imigrasi.go.id.\nconst p = $('Check the MRZ').first().json;\nreturn [{ json: { ok: true, ref: 'eVOA-2610-447128', site: 'evisa.imigrasi.go.id',\n  qrPayload: `KOOK DEMO | e-VOA | ${p.surname} | eVOA-2610-447128 | not a travel document` } }];\n"
+   },
+   "name": "e-Visa (browser agent)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    5168,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// FILMING: the browser agent's structured output from lovebali.baliprov.go.id.\nconst p = $('Check the MRZ').first().json;\nreturn [{ json: { ok: true, ref: 'LB-26-0918-3317', site: 'lovebali.baliprov.go.id',\n  qrPayload: `KOOK DEMO | Bali levy | ${p.surname} | LB-26-0918-3317 | not a travel document` } }];\n"
+   },
+   "name": "Bali entry tax (browser agent)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    5344,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// FILMING: the browser agent's structured output from allindonesia.imigrasi.go.id.\n// (Live, this one waits until 3 days before landing: the form doesn't open before that.)\nconst p = $('Check the MRZ').first().json;\nreturn [{ json: { ok: true, ref: 'AI-DPS-77310925', site: 'allindonesia.imigrasi.go.id',\n  qrPayload: `KOOK DEMO | All Indonesia | ${p.surname} | AI-DPS-77310925 | not a travel document` } }];\n"
+   },
+   "name": "Arrival card (browser agent)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    5520,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "function load(x) {\n  if (!x) return null;\n  if (x.data && typeof x.data === 'object' && !Array.isArray(x.data)) return x;\n  const raw = (typeof x === 'string') ? x\n            : (typeof x.data === 'string') ? x.data\n            : (typeof x.body === 'string') ? x.body : JSON.stringify(x);\n  const i = raw.indexOf('{');\n  try { return JSON.parse(i >= 0 ? raw.slice(i) : raw); } catch (e) { return null; }\n}\nconst COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst compass = d => COMPASS[Math.round(((d || 0) % 360) / 22.5) % 16];\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];\nconst MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];\nconst nice = iso => { const d = new Date(iso + 'T00:00:00Z'); return DAYS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()]; };\nconst balToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // Bali = UTC+8\nconst addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\n\n// Three QR codes per traveller, one email each. In the public build the payloads come\n// from the browser agent, which reads the QR off each official page. Each government\n// site ALSO emails its own copy, because Kook applies with the traveller's own address.\nconst S = $('Kook settings').first().json;\nconst e = $('Evaluate swell').first().json;\nconst get = n => { try { return $(n).first().json; } catch (x) { return null; } };\nconst fl = get('Book flights (Duffel)') || get('Flight booked');\nconst ins = $input.all().map(i => i.json);\nconst travellers = (ins[0] && ins[0].visa) ? ins : [{       // filming: one traveller, one mock per site\n  given: (get('Check the MRZ') || {}).given || S.ME, email: S.MY_EMAIL,\n  visa: get('e-Visa (browser agent)'), tax: get('Bali entry tax (browser agent)'), card: get('Arrival card (browser agent)') }];\nconst qr = (data, hex) => 'https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=8&color=' + hex +\n  '&data=' + encodeURIComponent(data || 'missing');\nconst card_html = r => `\n<tr><td style=\"padding:0 0 14px 0;\">\n  <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#ffffff;border-radius:14px;border:1px solid #e7e1d6;\">\n    <tr>\n      <td width=\"150\" style=\"padding:16px;\" valign=\"middle\"><img src=\"${qr(r.data, r.c)}\" width=\"132\" height=\"132\" alt=\"QR ${r.n}\" style=\"display:block;border-radius:8px;\"></td>\n      <td style=\"padding:16px 18px 16px 0;font-family:Arial,Helvetica,sans-serif;\" valign=\"middle\">\n        <div style=\"font-size:11px;letter-spacing:.14em;color:#8b8478;text-transform:uppercase;\">${r.n} of 3</div>\n        <div style=\"font-size:17px;font-weight:bold;color:#14201f;margin:4px 0 8px 0;\">${r.title}</div>\n        <span style=\"display:inline-block;background:#e3f3e8;color:#17663a;font-size:12px;font-weight:bold;padding:4px 10px;border-radius:999px;\">&#10003; ${r.pill}</span>\n        <div style=\"font-size:13px;color:#5d574e;margin-top:10px;\">Ref <b style=\"color:#14201f;\">${esc(r.ref)}</b></div>\n        <div style=\"font-size:13px;color:#5d574e;margin-top:4px;\">${r.show}</div>\n      </td>\n    </tr>\n  </table>\n</td></tr>`;\nreturn travellers.map(t => {\n  const first = String(t.given || S.ME).split(' ')[0].toLowerCase().replace(/^\\w/, c => c.toUpperCase());\n  const rows = [\n    { n: 1, title: 'Electronic Visa on Arrival (e-VOA)', pill: 'Approved', ref: t.visa.ref, show: 'Scan it at the autogates. No visa queue.', data: t.visa.qrPayload, c: '0f3b3a' },\n    { n: 2, title: 'All Indonesia arrival card', pill: 'Submitted', ref: t.card.ref, show: 'Show it at customs on the way out.', data: t.card.qrPayload, c: '1f4f7a' },\n    { n: 3, title: 'Bali tourist tax &middot; IDR 150,000', pill: 'Paid', ref: t.tax.ref, show: 'Show it if they check at the levy desk.', data: t.tax.qrPayload, c: '8a4b12' },\n  ];\n  const html = `<!doctype html><html><body style=\"margin:0;padding:0;background:#f3efe7;\">\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f3efe7;\"><tr><td align=\"center\" style=\"padding:24px 12px;\">\n<table role=\"presentation\" width=\"560\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:560px;width:100%;\">\n  <tr><td style=\"background:#0f3b3a;border-radius:18px;padding:28px 26px;font-family:Arial,Helvetica,sans-serif;\">\n    <div style=\"font-size:12px;letter-spacing:.24em;color:#9fd3c7;\">KOOK &middot; BALI ENTRY PACK</div>\n    <div style=\"font-size:28px;line-height:1.15;font-weight:bold;color:#ffffff;margin:10px 0 8px 0;\">You're cleared for Bali, ${esc(first)}.</div>\n    <div style=\"font-size:14px;color:#cfe6df;\">${esc(fl.flightNo)} &middot; lands ${nice(fl.date || e.departDate)}, ${fl.arriveTime} WITA &middot; ${esc(S.BREAK.name)} ${e.peakMin}-${e.peakMax}ft</div>\n  </td></tr>\n  <tr><td style=\"height:16px;\"></td></tr>\n  ${rows.map(card_html).join('')}\n  <tr><td style=\"background:#fff8e8;border-radius:14px;border:1px solid #f0dfb5;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#5a4a22;line-height:1.5;\">\n    <b>When you land:</b> walk straight past the visa line to the autogates. Ketut's out the front with your names on a sign. Ignore the taxi guys.\n  </td></tr>\n  <tr><td style=\"padding:16px 4px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#9a9286;text-align:center;\">\n    ${S.FILMING ? 'Demo run: these QR codes are not valid travel documents.' : 'Sent by Kook. The official copies are in your inbox from each government site too.'}\n  </td></tr>\n</table></td></tr></table></body></html>`;\n  return { json: { to: S.FILMING ? S.MY_EMAIL : t.email, subject: `🌴 Your Bali entry pack: 3 QR codes, ${fl.flightNo} ${nice(fl.date || e.departDate)}`, html } };\n});\n"
+   },
+   "name": "Three QR codes",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    5696,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "sendTo": "={{ $json.to }}",
+    "subject": "={{ $json.subject }}",
+    "emailType": "html",
+    "message": "={{ $json.html }}",
+    "options": {
+     "appendAttribution": false,
+     "senderName": "Kook"
+    }
+   },
+   "name": "Email the entry pack",
+   "type": "n8n-nodes-base.gmail",
+   "typeVersion": 2.1,
+   "position": [
+    5872,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "=🛂 Visa ✓   📝 Arrival card ✓   🌴 Bali tax ✓\n\n<b>Three QR codes are in everyone's inbox.</b> We walk straight past the visa line.",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
+   },
+   "name": "Group chat: paperwork done",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    6048,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "content": "## 5 · The paperwork 🛂\nA one-time card capped at exactly IDR 650k. A browser agent fills the three official .go.id sites. Three QR codes land in your inbox.",
+    "width": 1236,
+    "height": 470,
+    "color": 2
+   },
+   "name": "note-42",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    4952,
+    180
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// FILMING: AeroDataBox says the plane is on the ground. Live, this node polls every 5 min.\nconst fl = $('Book flights (Duffel)').first().json;\nreturn [{ json: { number: fl.flightNo, status: 'Arrived', arrival: { airport: { iata: 'DPS' }, revisedTime: { local: `${fl.date} ${fl.arriveTime}+08:00` } } } }];\n"
+   },
+   "name": "Track the flight (AeroDataBox)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    6224,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "c1",
+       "leftValue": "={{ $json.status === 'Arrived' || $json.status === 'Landed' }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   },
+   "name": "Landed?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    6400,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// Ketut's sign is a real image, made on the fly, so he can hold his phone or tablet up\n// at Arrivals. Same names the boys will be looking for.\nconst S = $('Kook settings').first().json;\nconst get = n => { try { return $(n).first().json; } catch (x) { return null; } };\nconst fl = get('Book flights (Duffel)') || get('Flight booked');\nconst v = $('Best villa within budget').first().json.villa;\nconst crew = (get('Crew manifest') || {}).names || S.CREW;\nconst names = crew.map(n => n.toUpperCase()).join(' · ');\nconst text = `KOOK CREW\\n${names}`;\nconst sign = 'https://placehold.co/1200x630/ffffff/111111/png?font=montserrat&text=' +\n  encodeURIComponent(text).replace(/%0A/g, '%5Cn');\nconst ketut = `Ketut! 🙏 The boys just landed. ${fl.flightNo}, ${crew.length} people, ${crew.length} boards. ` +\n  `Visas are done so they skip the queue, out in about 20 min. Sign: ${sign} Villa: ${v.name}. Terima kasih!`;\nconst caption = `🚕 <b>Ketut's waiting at Arrivals</b> with this sign.\\n` +\n  `Walk straight past the visa line (scan your e-Visa QR at the autogates) and straight past the fake taxi guys. ` +\n  `He's in the ${S.KETUT_CAR}.`;\nreturn [{ json: { sign, ketut, caption } }];\n"
+   },
+   "name": "Make the name sign",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    6576,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "from": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP ? $('Kook settings').first().json.TWILIO_WHATSAPP_FROM : $('Kook settings').first().json.TWILIO_FROM }}",
+    "to": "={{ $('Kook settings').first().json.KETUT_PHONE }}",
+    "toWhatsapp": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP }}",
+    "message": "={{ $json.ketut }}",
+    "options": {}
+   },
+   "name": "WhatsApp Ketut: we've landed",
+   "type": "n8n-nodes-base.twilio",
+   "typeVersion": 1,
+   "position": [
+    6752,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "operation": "sendPhoto",
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "file": "={{ $('Make the name sign').first().json.sign }}",
+    "additionalFields": {
+     "caption": "={{ $('Make the name sign').first().json.caption }}",
+     "parse_mode": "HTML"
+    }
+   },
+   "name": "Group chat: Ketut's waiting",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    6928,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "content": "## 6 · Land → Ketut 🛬\nThe second the wheels touch down, Ketut gets the flight, the headcount and a name sign.",
+    "width": 884,
+    "height": 470,
+    "color": 4
+   },
+   "name": "note-48",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    6184,
+    180
+   ]
+  },
+  {
+   "parameters": {
+    "from": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP ? $('Kook settings').first().json.TWILIO_WHATSAPP_FROM : $('Kook settings').first().json.TWILIO_FROM }}",
+    "to": "={{ $('Kook settings').first().json.SCOOTER_PHONE }}",
+    "toWhatsapp": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP }}",
+    "message": "=Hi Made! {{ $('Kook settings').first().json.CREW.length }} scooters to {{ $('Best villa within budget').first().json.villa.name }} today at 3pm please, {{ $('Evaluate swell').first().json.nights }} days, surf racks on all of them. I'll send photos at handover 🙏",
+    "options": {}
+   },
+   "name": "WhatsApp: book the scooters",
+   "type": "n8n-nodes-base.twilio",
+   "typeVersion": 1,
+   "position": [
+    7104,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "=🛵 <b>Scooters are here.</b> Before anyone rides, snap every bike:\n{{ $execution.resumeFormUrl }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
+   },
+   "name": "Ask for handover photos",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    7280,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "resume": "form",
+    "formTitle": "🛵 Scooter handover",
+    "formDescription": "One photo per side of every bike, plus anything that's already scratched. Kook logs every mark and sends the report to the owner so nobody gets stung when we hand them back.",
+    "formFields": {
+     "values": [
+      {
+       "fieldLabel": "Scooter photos",
+       "fieldType": "file",
+       "multipleFiles": true,
+       "acceptFileTypes": ".jpg,.jpeg,.png",
+       "requiredField": false
+      }
+     ]
+    },
+    "responseMode": "onReceived",
+    "limitWaitTime": true,
+    "limitType": "afterTimeInterval",
+    "resumeAmount": 30,
+    "resumeUnit": "minutes",
+    "options": {
+     "respondWithOptions": {
+      "values": {
+       "respondWith": "text",
+       "formSubmittedText": "Logged 🤙 Kook's writing up the report."
+      }
+     }
+    }
+   },
+   "name": "Scooter photos (form)",
+   "type": "n8n-nodes-base.wait",
+   "typeVersion": 1.1,
+   "position": [
+    7456,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// One item per photo, each with its image on a fixed key, so every photo gets its own\n// careful look from the vision model. Capped at 8 photos.\nconst it = $input.first();\nconst bin = it.binary || {};\nconst keys = Object.keys(bin).filter(k => /^image\\//.test(bin[k].mimeType || '')).slice(0, 8);\nif (!keys.length) return [{ json: { hasPhoto: false } }];\nreturn keys.map((k, i) => ({ json: { hasPhoto: true, n: i + 1, takenAt: new Date().toISOString() }, binary: { photo: bin[k] } }));\n"
+   },
+   "name": "Grab the scooter photos",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    7632,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "c1",
+       "leftValue": "={{ $json.hasPhoto }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   },
+   "name": "Photos uploaded?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    7808,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "operation": "resize",
+    "dataPropertyName": "photo",
+    "width": 1600,
+    "height": 1600,
+    "resizeOption": "onlyIfLarger",
+    "options": {
+     "format": "jpeg",
+     "quality": 85
+    }
+   },
+   "name": "Shrink the scooter photos",
+   "type": "n8n-nodes-base.editImage",
+   "typeVersion": 1,
+   "position": [
+    7984,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// Claude takes images as base64 (max 5MB), which is why the photo is shrunk first.\nconst out = [];\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  let image_b64 = null;\n  try { image_b64 = (await this.helpers.getBinaryDataBuffer(i, 'photo')).toString('base64'); } catch (e) {}\n  out.push({ json: { ...items[i].json, image_b64, media_type: 'image/jpeg' } });\n}\nreturn out;\n"
+   },
+   "name": "Encode scooter photos",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    8160,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://api.anthropic.com/v1/messages",
+    "options": {
+     "timeout": 90000
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "anthropic-version",
+       "value": "2023-06-01"
+      }
+     ]
+    },
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ model: $('Kook settings').first().json.VISION_MODEL, max_tokens: 600, messages: [{ role: 'user', content: [ { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: $json.image_b64 } }, { type: 'text', text: $('Kook settings').first().json.SCRATCH_PROMPT } ] }] }) }}",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "anthropicApi"
+   },
+   "name": "Spot every scratch (Claude vision)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    8336,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// The condition report: every scratch, which bike, when. It goes to the crew by email\n// and to the scooter guy on WhatsApp, and his \"OK\" reply is the timestamped sign-off.\nconst S = $('Kook settings').first().json;\nconst v = $('Best villa within budget').first().json.villa;\nconst bikes = $input.all().map((i, k) => {\n  const j = i.json;\n  if (j.content) {\n    const txt = (j.content.find(c => c.type === 'text') || {}).text || '';\n    try { return { n: k + 1, ...JSON.parse((txt.match(/\\{[\\s\\S]*\\}/) || ['{}'])[0]) }; } catch (x) { return { n: k + 1, damage: [], unread: true }; }\n  }\n  return j;\n});\nconst when = new Date(Date.now() + 8 * 3600e3);\nconst stamp = `${when.getUTCDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][when.getUTCMonth()]} ${String(when.getUTCHours()).padStart(2, '0')}:${String(when.getUTCMinutes()).padStart(2, '0')} WITA`;\nconst total = bikes.reduce((a, b) => a + (b.damage || []).length, 0);\nconst line = b => `Bike ${b.n}${b.plate ? ' (' + b.plate + ')' : ''}: ` +\n  ((b.damage || []).length ? b.damage.map(d => `${d.size} ${d.what}, ${d.where}`).join('; ') : 'no damage');\nconst wa = `Hi! Scooter handover at ${v.name}, ${stamp}. Photos taken of all ${bikes.length} bikes. ` +\n  `Existing damage: ${bikes.map(line).join(' | ')}. Please reply OK to confirm 🙏`;\nconst rowsHtml = bikes.map(b => `<tr><td style=\"padding:10px 12px;border-bottom:1px solid #eee;font-weight:bold;\">Bike ${b.n}<br><span style=\"font-weight:normal;color:#777;font-size:12px;\">${b.plate || 'plate n/a'} · ${b.colour || ''}</span></td>\n<td style=\"padding:10px 12px;border-bottom:1px solid #eee;\">${(b.damage || []).length ? b.damage.map(d => `• ${d.size} ${d.what}, ${d.where}`).join('<br>') : '<span style=\"color:#17663a;\">No damage</span>'}</td></tr>`).join('');\nconst html = `<div style=\"font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1a1a1a;line-height:1.5;\">\n<p><b>🛵 Scooter handover report</b><br>${v.name} · ${stamp}</p>\n<p>${total} existing marks logged across ${bikes.length} bikes, before anyone rode them. Keep this. It's your proof at return.</p>\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse:collapse;border:1px solid #eee;\">${rowsHtml}</table>\n<p style=\"color:#777;font-size:12px;\">Sent to the rental owner on WhatsApp at the same time for a timestamped OK.</p></div>`;\nreturn [{ json: { to: S.MY_EMAIL, subject: `🛵 Scooter handover report · ${total} marks logged · ${stamp}`, html, wa, total, bikes: bikes.length,\n  group: `🛵 <b>${bikes.length} scooters checked in.</b> Kook photographed every scratch (${total} logged) and sent the report to the owner. Nobody gets stung at handback.` } }];\n"
+   },
+   "name": "Condition report",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    8512,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "sendTo": "={{ $json.to }}",
+    "subject": "={{ $json.subject }}",
+    "emailType": "html",
+    "message": "={{ $json.html }}",
+    "options": {
+     "appendAttribution": false,
+     "senderName": "Kook"
+    }
+   },
+   "name": "Email the condition report",
+   "type": "n8n-nodes-base.gmail",
+   "typeVersion": 2.1,
+   "position": [
+    8688,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "from": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP ? $('Kook settings').first().json.TWILIO_WHATSAPP_FROM : $('Kook settings').first().json.TWILIO_FROM }}",
+    "to": "={{ $('Kook settings').first().json.SCOOTER_PHONE }}",
+    "toWhatsapp": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP }}",
+    "message": "={{ $('Condition report').first().json.wa }}",
+    "options": {}
+   },
+   "name": "WhatsApp: scooter guy signs off",
+   "type": "n8n-nodes-base.twilio",
+   "typeVersion": 1,
+   "position": [
+    8864,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "={{ $('Condition report').first().json.group }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
+   },
+   "name": "Group chat: scooters sorted",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    9040,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "// No photos uploaded: a realistic sample log, so the report and the sign-off still run.\nreturn [\n  { json: { n: 1, plate: 'DK 4471 FAB', colour: 'matte black Scoopy', damage: [{ where: 'left mirror housing', what: 'scratch', size: 'small' }, { where: 'front mudguard', what: 'scuff', size: 'medium' }] } },\n  { json: { n: 2, plate: 'DK 2190 FBC', colour: 'white Vario', damage: [{ where: 'right side panel', what: 'crack', size: 'small' }] } },\n  { json: { n: 3, plate: 'DK 5502 FAD', colour: 'red Scoopy', damage: [] } },\n  { json: { n: 4, plate: 'DK 3318 FCA', colour: 'grey NMAX', damage: [{ where: 'rear tyre', what: 'worn tread', size: 'medium' }, { where: 'seat', what: 'tear', size: 'small' }] } },\n];\n"
+   },
+   "name": "Sample damage log",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    7984,
+    600
+   ]
+  },
+  {
+   "parameters": {
+    "content": "## 7 · Scooters 🛵\nBooked on WhatsApp. At handover Claude logs every scratch from your photos, and the owner gets the report for a timestamped OK.",
+    "width": 2116,
+    "height": 470,
+    "color": 5
+   },
+   "name": "note-62",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    7064,
+    180
+   ]
+  },
+  {
+   "parameters": {
+    "resume": "timeInterval",
+    "amount": 3,
+    "unit": "seconds"
+   },
+   "name": "Wait for 6am (filming: 3 sec)",
+   "type": "n8n-nodes-base.wait",
+   "typeVersion": 1.1,
+   "position": [
+    9216,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "jsCode": "const S = $('Kook settings').first().json;\nreturn S.MORNING_BREAKS.map(b => ({ json: b }));\n"
+   },
+   "name": "The breaks",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    9392,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "=https://r.jina.ai/https://services.surfline.com/kbyg/spots/forecasts/rating?spotId={{ $('The breaks').item.json.spotId }}&days=1&intervalHours=3",
+    "options": {
+     "timeout": 45000,
+     "batching": {
+      "batch": {
+       "batchSize": 1,
+       "batchInterval": 900
+      }
+     }
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-Return-Format",
+       "value": "text"
+      }
+     ]
+    }
+   },
+   "name": "Surfline: rating (each break)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    9568,
+    368
+   ],
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "=https://r.jina.ai/https://services.surfline.com/kbyg/spots/forecasts/surf?spotId={{ $('The breaks').item.json.spotId }}&days=1&intervalHours=3",
+    "options": {
+     "timeout": 45000,
+     "batching": {
+      "batch": {
+       "batchSize": 1,
+       "batchInterval": 900
+      }
+     }
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-Return-Format",
+       "value": "text"
+      }
+     ]
+    }
+   },
+   "name": "Surfline: surf (each break)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    9744,
+    368
+   ],
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "method": "GET",
+    "url": "=https://r.jina.ai/https://services.surfline.com/kbyg/spots/forecasts/wind?spotId={{ $('The breaks').item.json.spotId }}&days=1&intervalHours=3",
+    "options": {
+     "timeout": 45000,
+     "batching": {
+      "batch": {
+       "batchSize": 1,
+       "batchInterval": 900
+      }
+     }
+    },
+    "sendHeaders": true,
+    "headerParameters": {
+     "parameters": [
+      {
+       "name": "X-Return-Format",
+       "value": "text"
+      }
+     ]
+    }
+   },
+   "name": "Surfline: wind (each break)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    9920,
+    368
+   ],
+   "onError": "continueRegularOutput"
+  },
+  {
+   "parameters": {
+    "jsCode": "function load(x) {\n  if (!x) return null;\n  if (x.data && typeof x.data === 'object' && !Array.isArray(x.data)) return x;\n  const raw = (typeof x === 'string') ? x\n            : (typeof x.data === 'string') ? x.data\n            : (typeof x.body === 'string') ? x.body : JSON.stringify(x);\n  const i = raw.indexOf('{');\n  try { return JSON.parse(i >= 0 ? raw.slice(i) : raw); } catch (e) { return null; }\n}\nconst COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst compass = d => COMPASS[Math.round(((d || 0) % 360) / 22.5) % 16];\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];\nconst MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];\nconst nice = iso => { const d = new Date(iso + 'T00:00:00Z'); return DAYS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()]; };\nconst balToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // Bali = UTC+8\nconst addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };\n\n// Which break is CLEANEST this morning? Surfline's own rating, then the wind (offshore\n// beats cross beats onshore), then size. The winner goes to Ketut, boards on the roof.\nconst S = $('Kook settings').first().json;\nconst breaks = $('The breaks').all().map(i => i.json);\nconst R = $('Surfline: rating (each break)').all(), SU = $('Surfline: surf (each break)').all(), WI = $('Surfline: wind (each break)').all();\nconst today = balToday();\nconst RATE = { VERY_POOR: 'very poor', POOR: 'poor', POOR_TO_FAIR: 'poor to fair', FAIR: 'fair', FAIR_TO_GOOD: 'fair to good', GOOD: 'good', VERY_GOOD: 'very good', GOOD_TO_EPIC: 'good to epic', EPIC: 'EPIC' };\nfunction at6(arr) {                       // today's 6am slot, else the first slot of the feed\n  if (!arr || !arr.length) return null;\n  const local = x => new Date((x.timestamp + (x.utcOffset || 8) * 3600) * 1000);\n  return arr.find(x => local(x).toISOString().slice(0, 10) === today && local(x).getUTCHours() === 6) ||\n         arr.find(x => local(x).getUTCHours() >= 6) || arr[0];\n}\nconst scored = breaks.map((b, i) => {\n  const r = at6(((load(R[i] && R[i].json) || {}).data || {}).rating);\n  const s = at6(((load(SU[i] && SU[i].json) || {}).data || {}).surf);\n  const w = at6(((load(WI[i] && WI[i].json) || {}).data || {}).wind);\n  if (!r || !s || !w) return { ...b, ok: false };\n  const wind = w.directionType === 'Offshore' ? 6 : w.directionType === 'Cross-shore' ? 1 : -6;\n  // size: closest to the crew's ideal wave (IDEAL_FT) wins, so 6-8ft beats both 4-6 and 10-12\n  const size = -Math.abs((s.surf.min + s.surf.max) / 2 - (S.IDEAL_FT || 6)) * 1.5;\n  const score = (r.rating.value || 0) * 10 + wind - (w.speed || 0) * 0.4 + size;\n  return { ...b, ok: true, score: Math.round(score * 10) / 10, rating: RATE[r.rating.key] || r.rating.key,\n           min: s.surf.min, max: s.surf.max, windType: w.directionType, windKts: Math.round(w.speed || 0) };\n}).filter(b => b.ok).sort((a, b) => b.score - a.score);\nif (!scored.length) return [{ json: { none: true, group: '🌅 Surfline did not answer this morning. Kook will check again at 6:30.', ketut: '' } }];\nconst top = scored[0];\nconst medals = ['🥇', '🥈', '🥉', '4.', '5.'];\nconst board = scored.map((b, k) => `${medals[k] || (k + 1) + '.'} ${esc(b.name)}: ${b.min}-${b.max}ft, ${b.windType.toLowerCase()} ${b.windKts}kts, ${b.rating}`).join('\\n');\nreturn [{ json: {\n  pick: top.name,\n  group: `🌅 <b>6am surf check</b>\\n${board}\\n\\n<b>Today: ${esc(top.name)}.</b> Ketut's out the front at 6:30 with the boards on the roof.`,\n  ketut: `Pagi Ketut! 🌅 ${top.name} today. Pick up 6:30 at the villa please, ${S.CREW.length} boards on the roof. Terima kasih!`,\n} }];\n"
+   },
+   "name": "Pick the cleanest break",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    10096,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "from": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP ? $('Kook settings').first().json.TWILIO_WHATSAPP_FROM : $('Kook settings').first().json.TWILIO_FROM }}",
+    "to": "={{ $('Kook settings').first().json.KETUT_PHONE }}",
+    "toWhatsapp": "={{ $('Kook settings').first().json.KETUT_VIA_WHATSAPP }}",
+    "message": "={{ $('Pick the cleanest break').first().json.ketut }}",
+    "options": {}
+   },
+   "name": "WhatsApp Ketut: boards on the roof",
+   "type": "n8n-nodes-base.twilio",
+   "typeVersion": 1,
+   "position": [
+    10272,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "chatId": "={{ $('Kook settings').first().json.TELEGRAM_CHAT_ID }}",
+    "text": "={{ $('Pick the cleanest break').first().json.group }}",
+    "additionalFields": {
+     "parse_mode": "HTML",
+     "appendAttribution": false,
+     "disable_web_page_preview": true
+    }
+   },
+   "name": "Group chat: today's call",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "position": [
+    10448,
+    368
+   ]
+  },
+  {
+   "parameters": {
+    "content": "## 8 · 6am surf check 🌅\nEvery morning: live Surfline rating, size and wind for 5 breaks. The cleanest wins, and Ketut gets the call.",
+    "width": 1412,
+    "height": 470,
+    "color": 6
+   },
+   "name": "note-71",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    9176,
+    180
+   ]
+  }
+ ],
+ "connections": {
+  "Every 6h": {
+   "main": [
+    [
+     {
+      "node": "Kook settings",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Run (manual)": {
+   "main": [
+    [
+     {
+      "node": "Kook settings",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Kook settings": {
+   "main": [
+    [
+     {
+      "node": "Surfline: surf",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Surfline: surf": {
+   "main": [
+    [
+     {
+      "node": "Surfline: wind",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Surfline: wind": {
+   "main": [
+    [
+     {
+      "node": "Surfline: swells",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Surfline: swells": {
+   "main": [
+    [
+     {
+      "node": "Forecast",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Forecast": {
+   "main": [
+    [
+     {
+      "node": "Evaluate swell",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Evaluate swell": {
+   "main": [
+    [
+     {
+      "node": "Swell ON?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Swell ON?": {
+   "main": [
+    [
+     {
+      "node": "Apify: cheapest flights",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Apify: cheapest flights": {
+   "main": [
+    [
+     {
+      "node": "Apify: villas near the surf",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Apify: villas near the surf": {
+   "main": [
+    [
+     {
+      "node": "Best villa within budget",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Best villa within budget": {
+   "main": [
+    [
+     {
+      "node": "Live exchange rate",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Live exchange rate": {
+   "main": [
+    [
+     {
+      "node": "Cost it all up",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Cost it all up": {
+   "main": [
+    [
+     {
+      "node": "Group chat: the pitch",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Group chat: the pitch": {
+   "main": [
+    [
+     {
+      "node": "Lock in or miss out?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Lock in or miss out?": {
+   "main": [
+    [
+     {
+      "node": "Locked in?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Locked in?": {
+   "main": [
+    [
+     {
+      "node": "Kook needs your passport",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Missed out",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Kook needs your passport": {
+   "main": [
+    [
+     {
+      "node": "Passport upload (form)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Passport upload (form)": {
+   "main": [
+    [
+     {
+      "node": "Grab the passport",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Grab the passport": {
+   "main": [
+    [
+     {
+      "node": "Passport uploaded?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Passport uploaded?": {
+   "main": [
+    [
+     {
+      "node": "Shrink the photo",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Use specimen passport",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Shrink the photo": {
+   "main": [
+    [
+     {
+      "node": "Encode for Claude",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Encode for Claude": {
+   "main": [
+    [
+     {
+      "node": "Read passport (Claude vision)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Read passport (Claude vision)": {
+   "main": [
+    [
+     {
+      "node": "Check the MRZ",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Check the MRZ": {
+   "main": [
+    [
+     {
+      "node": "Passport verified",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Use specimen passport": {
+   "main": [
+    [
+     {
+      "node": "Check the MRZ",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Passport verified": {
+   "main": [
+    [
+     {
+      "node": "Book flights (Duffel)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Book flights (Duffel)": {
+   "main": [
+    [
+     {
+      "node": "Book villa (browser agent)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Book villa (browser agent)": {
+   "main": [
+    [
+     {
+      "node": "Group chat: booked",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Group chat: booked": {
+   "main": [
+    [
+     {
+      "node": "Single-use card (Airwallex)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Single-use card (Airwallex)": {
+   "main": [
+    [
+     {
+      "node": "e-Visa (browser agent)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "e-Visa (browser agent)": {
+   "main": [
+    [
+     {
+      "node": "Bali entry tax (browser agent)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Bali entry tax (browser agent)": {
+   "main": [
+    [
+     {
+      "node": "Arrival card (browser agent)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Arrival card (browser agent)": {
+   "main": [
+    [
+     {
+      "node": "Three QR codes",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Three QR codes": {
+   "main": [
+    [
+     {
+      "node": "Email the entry pack",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Email the entry pack": {
+   "main": [
+    [
+     {
+      "node": "Group chat: paperwork done",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Group chat: paperwork done": {
+   "main": [
+    [
+     {
+      "node": "Track the flight (AeroDataBox)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Track the flight (AeroDataBox)": {
+   "main": [
+    [
+     {
+      "node": "Landed?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Landed?": {
+   "main": [
+    [
+     {
+      "node": "Make the name sign",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Make the name sign": {
+   "main": [
+    [
+     {
+      "node": "WhatsApp Ketut: we've landed",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "WhatsApp Ketut: we've landed": {
+   "main": [
+    [
+     {
+      "node": "Group chat: Ketut's waiting",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Group chat: Ketut's waiting": {
+   "main": [
+    [
+     {
+      "node": "WhatsApp: book the scooters",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "WhatsApp: book the scooters": {
+   "main": [
+    [
+     {
+      "node": "Ask for handover photos",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Ask for handover photos": {
+   "main": [
+    [
+     {
+      "node": "Scooter photos (form)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Scooter photos (form)": {
+   "main": [
+    [
+     {
+      "node": "Grab the scooter photos",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Grab the scooter photos": {
+   "main": [
+    [
+     {
+      "node": "Photos uploaded?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Photos uploaded?": {
+   "main": [
+    [
+     {
+      "node": "Shrink the scooter photos",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Sample damage log",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Shrink the scooter photos": {
+   "main": [
+    [
+     {
+      "node": "Encode scooter photos",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Encode scooter photos": {
+   "main": [
+    [
+     {
+      "node": "Spot every scratch (Claude vision)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Spot every scratch (Claude vision)": {
+   "main": [
+    [
+     {
+      "node": "Condition report",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Condition report": {
+   "main": [
+    [
+     {
+      "node": "Email the condition report",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Email the condition report": {
+   "main": [
+    [
+     {
+      "node": "WhatsApp: scooter guy signs off",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "WhatsApp: scooter guy signs off": {
+   "main": [
+    [
+     {
+      "node": "Group chat: scooters sorted",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Sample damage log": {
+   "main": [
+    [
+     {
+      "node": "Condition report",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Group chat: scooters sorted": {
+   "main": [
+    [
+     {
+      "node": "Wait for 6am (filming: 3 sec)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Wait for 6am (filming: 3 sec)": {
+   "main": [
+    [
+     {
+      "node": "The breaks",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "The breaks": {
+   "main": [
+    [
+     {
+      "node": "Surfline: rating (each break)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Surfline: rating (each break)": {
+   "main": [
+    [
+     {
+      "node": "Surfline: surf (each break)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Surfline: surf (each break)": {
+   "main": [
+    [
+     {
+      "node": "Surfline: wind (each break)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Surfline: wind (each break)": {
+   "main": [
+    [
+     {
+      "node": "Pick the cleanest break",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pick the cleanest break": {
+   "main": [
+    [
+     {
+      "node": "WhatsApp Ketut: boards on the roof",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "WhatsApp Ketut: boards on the roof": {
+   "main": [
+    [
+     {
+      "node": "Group chat: today's call",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1",
+  "saveDataSuccessExecution": "none"
+ }
+}
